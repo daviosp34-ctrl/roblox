@@ -1,4 +1,4 @@
-name: Extract ZIP in Repo
+name: Move Extracted Files to Root
 
 on:
   workflow_dispatch:
@@ -7,21 +7,22 @@ permissions:
   contents: write
 
 jobs:
-  extract:
+  move_to_root:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Extract zip archive
+      - name: Move files from extracted_site to root
         run: |
-          unzip -o "saveweb2zip-com-www-roblox-com.zip" -d extracted_site
-          rm "saveweb2zip-com-www-roblox-com.zip"
+          shopt -s dotglob nullglob
+          mv extracted_site/* .
+          rmdir extracted_site || true
 
-      - name: Commit and push extracted files
+      - name: Commit and push changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "Extract saveweb2zip-com-www-roblox-com.zip"
+          git commit -m "Move extracted_site files to repository root" || echo "No changes to commit"
           git push
